@@ -2,6 +2,8 @@
 
 A production-ready machine learning pipeline for predicting energy demand using XGBoost, deployed with FastAPI and AWS.
 
+![Home Screenshot](images/ss.png)
+
 ## Project Structure
 
 ```
