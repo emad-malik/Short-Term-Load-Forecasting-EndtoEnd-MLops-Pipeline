@@ -1,6 +1,6 @@
-# Energy Demand ML - Deployment Pipeline
+# Short-Term Load Forecasting - End-to-End MLOps Pipeline
 
-A production-ready machine learning pipeline for predicting energy demand using XGBoost.
+A production-ready machine learning pipeline for predicting energy demand using XGBoost, deployed with FastAPI and AWS.
 
 ## Project Structure
 
@@ -271,4 +271,4 @@ MIT License
 
 ## Contributors
 
-- Your Team
+- Emaad Malik
