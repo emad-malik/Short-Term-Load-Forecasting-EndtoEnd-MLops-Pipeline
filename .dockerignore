@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.dockerignore
+
+# Data (optional - uncomment if you want to exclude large data files)
+# data/raw/*
+# data/processed/*
+
+# Models (optional - uncomment if models are trained separately)
+# models/*
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local

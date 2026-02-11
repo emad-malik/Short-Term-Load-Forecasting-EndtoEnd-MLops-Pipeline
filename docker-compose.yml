@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  energy-ml-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: energy-ml-api
+    ports:
+      - "80:80"
+    volumes:
+      # Mount data directories for persistence
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:80/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
