@@ -226,7 +226,8 @@ async def api_info():
     """Get API information and available endpoints"""
     return {
         "api_name": "Energy Demand ML API",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "message": "Testing CI/CD pipeline with GitHub Actions",
         "endpoints": {
             "/": "Home page",
             "/health": "Health check and model status",
@@ -238,6 +239,7 @@ async def api_info():
         },
         "model_loaded": predictor is not None
     }
+
 
 if __name__ == "__main__":
     import uvicorn
