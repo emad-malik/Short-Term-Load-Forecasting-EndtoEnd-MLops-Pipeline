@@ -271,4 +271,4 @@ MIT License
 
 ## Contributors
 
-- Emaad Malik
+- Emad Malik
