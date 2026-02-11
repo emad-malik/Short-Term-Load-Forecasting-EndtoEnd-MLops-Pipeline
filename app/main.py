@@ -1,5 +1,6 @@
 """
 FastAPI Application - Energy Demand ML API
+Author: Emad Malik
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
@@ -226,8 +227,8 @@ async def api_info():
     """Get API information and available endpoints"""
     return {
         "api_name": "Energy Demand ML API",
-        "version": "2.0.0",
-        "message": "Testing CI/CD pipeline with GitHub Actions",
+        "version": "2.1.0",
+        "message": "Testing CI/CD pipeline",
         "endpoints": {
             "/": "Home page",
             "/health": "Health check and model status",
