@@ -20,8 +20,12 @@ data/raw/*.csv
 data/processed/*.csv
 
 # Models
-models/*.pkl
-models/*.joblib
+# NOTE: xgboost_demand_model.pkl, feature_names.pkl, label_encoders.pkl, and
+# model_metrics.pkl are intentionally tracked (not ignored) so Render's build
+# has a trained model to load — see DEPLOYMENT_RENDER.md section 3, Option A.
+# Re-add exclusions below only if you switch to Option B/C instead.
+# models/*.pkl
+# models/*.joblib
 
 # IDE
 .vscode/

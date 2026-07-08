@@ -1,0 +1,36 @@
+# Render Blueprint — Energy Demand ML API
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Deploy: connect this repo in the Render Dashboard via
+# New -> Blueprint, and Render will read this file automatically.
+
+services:
+  - type: web
+    name: energy-demand-ml-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free                # 750 free instance-hours/month, spins down after 15 min idle
+    region: oregon             # change to the region closest to your users
+    branch: main
+    autoDeploy: true           # redeploy automatically on every push to `branch`
+
+    # Render injects PORT automatically; the Dockerfile CMD reads it via ${PORT}.
+    # Render calls this path to confirm the container is ready before routing
+    # traffic, and to decide whether an instance is healthy after a deploy.
+    healthCheckPath: /health
+
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      # Add any additional runtime secrets/config here, e.g.:
+      # - key: MODEL_BUCKET
+      #   sync: false          # prompts you to fill this in in the Dashboard
+
+    # Free instances cannot attach persistent disks (see DEPLOYMENT_RENDER.md
+    # for why /app/models and /app/data must be baked into the image instead).
+    # If you upgrade to a paid plan later, you can uncomment a disk here:
+    # disks:
+    #   - name: model-store
+    #     mountPath: /app/models
+    #     sizeGB: 1

@@ -55,7 +55,12 @@ def prepare_features(df):
     ]
     
     # Target variable
-    target = 'Demand (MW) (Adjusted)'
+    # 'Demand (MW) (Adjusted)' is populated on <0.01% of rows for the
+    # sub-regioned balancing authorities in this dataset (see etl.py), so it
+    # can't be trained on. 'Demand (MW)_subregion' is the sub-region-level
+    # demand value produced by the merge in etl.py and is well-populated
+    # (~90%+ after group-mean imputation) — that's the real target.
+    target = 'Demand (MW)_subregion'
     
     # Check if target exists
     if target not in data.columns:

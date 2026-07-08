@@ -75,9 +75,13 @@ def process_energy_data(data_dir):
     )
 
     # 5. Clean Numeric Columns (Remove commas, handle NaNs)
+    # NOTE: 'Demand (MW)' exists in both the subregion and balance files, so the
+    # merge above renamed it to 'Demand (MW)_subregion' / 'Demand (MW)_balance'.
+    # The old unsuffixed 'Demand (MW)' entry never matched anything post-merge,
+    # so it silently skipped cleaning/imputation below — fixed here.
     numeric_cols_energy = [
-        'Demand Forecast (MW)', 'Demand (MW)', 'Net Generation (MW)',
-        'Total Interchange (MW)', 'Sum(Valid DIBAs) (MW)',
+        'Demand Forecast (MW)', 'Demand (MW)_subregion', 'Demand (MW)_balance',
+        'Net Generation (MW)', 'Total Interchange (MW)', 'Sum(Valid DIBAs) (MW)',
         'Demand (MW) (Adjusted)', 'Net Generation (MW) (Adjusted)'
     ]
 
@@ -88,15 +92,23 @@ def process_energy_data(data_dir):
                 merged_df[col] = merged_df[col].str.replace(',', '', regex=False)
             merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
 
-    # Drop rows where critical targets are missing
-    merged_df.dropna(subset=['Demand Forecast (MW)', 'Demand (MW) (Adjusted)'], inplace=True)
-
-    # Fill remaining NaNs with mean grouped by Sub-Region and Hour
+    # Fill NaNs with the mean grouped by Sub-Region and Hour BEFORE dropping any
+    # rows, so sparsely-reported columns (e.g. Demand Forecast) get imputed
+    # wherever a group average exists, instead of losing the row outright.
     for col in numeric_cols_energy:
         if col in merged_df.columns:
             merged_df[col] = merged_df.groupby(['Sub-Region', 'Hour Number'])[col].transform(
                 lambda x: x.fillna(x.mean())
             )
+
+    # Drop rows where the modeling target is still missing after imputation.
+    # 'Demand (MW) (Adjusted)' is populated on <0.01% of rows for the balancing
+    # authorities that report sub-region breakdowns (CISO, ERCOT, ISO-NE, etc.),
+    # so it can't be used as the target for this dataset. 'Demand (MW)_subregion'
+    # is the column the 10% missing-value threshold above was tuned to preserve,
+    # and it's the sub-region-level demand that actually pairs with the
+    # 'Sub-Region' feature used in training — that's the real target.
+    merged_df.dropna(subset=['Demand (MW)_subregion'], inplace=True)
 
     # 6. Feature Engineering (Time)
     # Use the balance timestamp as the primary time

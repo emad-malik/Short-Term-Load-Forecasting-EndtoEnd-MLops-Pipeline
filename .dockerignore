@@ -34,11 +34,22 @@ Thumbs.db
 .dockerignore
 
 # Data (optional - uncomment if you want to exclude large data files)
+# Only safe to uncomment if you are NOT training the model as part of the
+# Docker build (i.e. you're using Option A from DEPLOYMENT_RENDER.md: commit
+# models/*.pkl and skip in-image training). If you use Option B (train during
+# `docker build`), keep data/raw and data/processed available to the build.
 # data/raw/*
 # data/processed/*
 
 # Models (optional - uncomment if models are trained separately)
 # models/*
+
+# Repo assets not needed inside the running container
+images/
+README.md
+docker-compose.yml
+.github/
+*.ipynb
 
 # Logs
 *.log
