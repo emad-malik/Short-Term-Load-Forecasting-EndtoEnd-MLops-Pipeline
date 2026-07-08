@@ -92,8 +92,7 @@ async def startup_event():
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     """Root endpoint - redirect to dashboard"""
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "index.html", {
         "title": "Energy Demand ML API"
     })
 
@@ -214,8 +213,7 @@ async def dashboard(request: Request):
         "season": "summer"
     }
     
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "dashboard.html", {
         "title": "Energy Demand Prediction Dashboard",
         "model_status": model_status,
         "example_data": example_data
