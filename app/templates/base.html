@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/css/theme.css?v={{ asset_v }}">
+    {% block page_css %}{% endblock %}
+    {% block head_scripts %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% block backdrop %}{% endblock %}
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span class="brand-mark">E</span>
+            <span class="navbar-brand-text">Realtime Energy Demand Forecasting</span>
+        </a>
+        <div class="navbar-links">
+            {% block nav_links %}{% endblock %}
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

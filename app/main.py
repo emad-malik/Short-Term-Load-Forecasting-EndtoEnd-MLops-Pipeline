@@ -3,6 +3,8 @@ FastAPI Application - Energy Demand ML API
 Author: Emad Malik
 """
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -10,7 +12,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
+import os
 import sys
+import time
 from pathlib import Path
 import subprocess
 import json
@@ -21,19 +25,48 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from inference import EnergyDemandPredictor
 
+# Global predictor instance
+predictor: Optional[EnergyDemandPredictor] = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Load the model on startup (lifespan replaces the deprecated
+    @app.on_event('startup') hook, which newer FastAPI versions remove)."""
+    global predictor
+    try:
+        predictor = EnergyDemandPredictor()
+        print("✓ Model loaded successfully on startup")
+    except FileNotFoundError:
+        print("⚠ Warning: Model not found. Please train the model first.")
+        predictor = None
+    yield
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Energy Demand ML API",
     description="API for energy demand prediction using XGBoost",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
-# Setup templates and static files
-templates = Jinja2Templates(directory=str(PROJECT_ROOT / "app" / "templates"))
-app.mount("/static", StaticFiles(directory=str(PROJECT_ROOT / "app" / "static")), name="static")
+# Setup templates and static files.
+# The static dir is created if missing so a fresh clone / rebuilt container
+# never crashes at import time (StaticFiles raises if the directory is absent,
+# and git does not track empty directories).
+STATIC_DIR = PROJECT_ROOT / "app" / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
-# Global predictor instance
-predictor: Optional[EnergyDemandPredictor] = None
+templates = Jinja2Templates(directory=str(PROJECT_ROOT / "app" / "templates"))
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Cache-busting token appended to every /static URL (?v=...) so browsers pick
+# up new CSS/JS immediately after each deploy instead of serving stale cached
+# assets. Render injects RENDER_GIT_COMMIT; locally we fall back to app start
+# time (cache is at worst per-process-restart).
+ASSET_VERSION = (os.environ.get("RENDER_GIT_COMMIT") or "")[:8] or str(int(time.time()))
+templates.env.globals["asset_v"] = ASSET_VERSION
 
 # Pydantic models for request/response
 class PredictionRequest(BaseModel):
@@ -123,24 +156,13 @@ def _to_model_input(data: Dict) -> Dict:
         'season': data['season'],
     }
 
-# Startup event to load model
-@app.on_event("startup")
-async def startup_event():
-    """Load the model on startup"""
-    global predictor
-    try:
-        predictor = EnergyDemandPredictor()
-        print("✓ Model loaded successfully on startup")
-    except FileNotFoundError:
-        print("⚠ Warning: Model not found. Please train the model first.")
-        predictor = None
-
 # Root endpoint
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    """Root endpoint - redirect to dashboard"""
+    """Landing page"""
     return templates.TemplateResponse(request, "index.html", {
-        "title": "Energy Demand ML API"
+        "title": "Energy Demand ML API",
+        "model_loaded": predictor is not None
     })
 
 # Health check endpoint

@@ -1,0 +1,367 @@
+/* ============================================================
+   dashboard.css — dashboard page only
+   ============================================================ */
+
+.shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 100px 24px 60px;
+}
+
+.page-heading {
+    margin-bottom: 22px;
+}
+
+.page-heading h1 {
+    font-size: 21px;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    margin-bottom: 4px;
+}
+
+.page-heading p {
+    color: var(--text-muted);
+    font-size: 13.5px;
+}
+
+/* ---------- KPI row ---------- */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+}
+
+.metric-value {
+    font-size: 22px;
+    font-weight: 650;
+    color: var(--text);
+    margin-top: 6px;
+}
+
+.metric-value span {
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text-muted);
+    margin-left: 3px;
+}
+
+.metric-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.45;
+}
+
+.metric-chart-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-chart-card canvas {
+    flex: 1;
+    max-height: 64px;
+    margin-top: 6px;
+}
+
+/* ---------- Layout grids ---------- */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: start;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.hero-panel {
+    margin-bottom: 16px;
+}
+
+/* ---------- Day-profile chips ---------- */
+.chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 13px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 12.5px;
+}
+
+.chip .chip-k {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.chip .chip-v {
+    font-weight: 650;
+    color: var(--text);
+}
+
+.chip.chip-peak .chip-k {
+    color: var(--danger);
+}
+
+.chip.chip-valley .chip-k {
+    color: var(--success);
+}
+
+/* ---------- Prediction form ---------- */
+.field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.field {
+    margin-bottom: 14px;
+}
+
+.field.span-2 {
+    grid-column: span 2;
+}
+
+/* ---------- Prediction result ---------- */
+.result-panel {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    display: none;
+}
+
+.result-panel.show {
+    display: block;
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-headline {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.result-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--accent-dark);
+}
+
+.result-unit {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.result-caption {
+    color: var(--text-muted);
+    font-size: 12.5px;
+}
+
+.range-track {
+    position: relative;
+    height: 6px;
+    background: var(--hairline);
+    border-radius: 4px;
+    margin: 20px 4px 10px;
+}
+
+.range-band {
+    position: absolute;
+    top: 0;
+    height: 6px;
+    background: var(--accent-soft);
+    border-radius: 4px;
+}
+
+.range-marker {
+    position: absolute;
+    top: -6px;
+    width: 3px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 2px;
+    transform: translateX(-50%);
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin: 0 2px;
+}
+
+/* ---------- Grid balance card ---------- */
+.balance-value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.balance-value .num {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.balance-value.surplus .num {
+    color: var(--success);
+}
+
+.balance-value.tight .num {
+    color: var(--warn);
+}
+
+.balance-value.deficit .num {
+    color: var(--danger);
+}
+
+.balance-unit {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.balance-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.balance-bar-row {
+    display: grid;
+    grid-template-columns: 82px 1fr 88px;
+    align-items: center;
+    gap: 10px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+}
+
+.balance-bar-track {
+    height: 10px;
+    background: var(--hairline);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.balance-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+.balance-bar.gen {
+    background: var(--success);
+    opacity: 0.75;
+}
+
+.balance-bar.dem {
+    background: var(--accent);
+}
+
+.balance-bar-num {
+    text-align: right;
+    font-weight: 650;
+    color: var(--text);
+}
+
+.balance-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* ---------- Links list ---------- */
+.links-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+}
+
+.links-list a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 4px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 13px;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.links-list a:last-child {
+    border-bottom: none;
+}
+
+.links-list a:hover {
+    color: var(--accent);
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+    .metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .field-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.span-2 {
+        grid-column: span 1;
+    }
+}

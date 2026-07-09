@@ -1,394 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <style>
-        :root {
-            --bg: #f4f5f7;
-            --surface: #ffffff;
-            --border: #e3e6eb;
-            --text: #17181c;
-            --text-muted: #6b7280;
-            --accent: #2f5fda;
-            --accent-dark: #24439f;
-            --accent-soft: rgba(47, 95, 218, 0.14);
-            --radius-lg: 14px;
-            --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
-        }
+{% extends "base.html" %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block body_class %}landing{% endblock %}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 120px 24px 40px;
-            position: relative;
-            overflow-x: hidden;
-        }
+{% block page_css %}
+<link rel="stylesheet" href="/static/css/landing.css?v={{ asset_v }}">
+{% endblock %}
 
-        /* Faint data-curve backdrop - a stylised demand chart behind the UI,
-           low opacity so it reads as texture rather than content. */
-        .bg-chart {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            animation: chartDrift 34s ease-in-out infinite alternate;
-        }
+{% block backdrop %}
+<svg class="bg-chart" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+            <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#2f5fda" stroke-width="1" opacity="0.05" />
+        </pattern>
+        <linearGradient id="curveFade1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2f5fda" stop-opacity="0.14" />
+            <stop offset="100%" stop-color="#2f5fda" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="curveFade2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3fbfb0" stop-opacity="0.10" />
+            <stop offset="100%" stop-color="#3fbfb0" stop-opacity="0" />
+        </linearGradient>
+    </defs>
 
-        @keyframes chartDrift {
-            from {
-                transform: scale(1) translate(0, 0);
-            }
+    <rect width="1600" height="900" fill="url(#grid)" />
 
-            to {
-                transform: scale(1.035) translate(-12px, -8px);
-            }
-        }
+    <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380 L1600,900 L0,900 Z"
+        fill="url(#curveFade1)" />
+    <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380"
+        fill="none" stroke="#2f5fda" stroke-width="2" opacity="0.18" />
 
-        /* ---------- Dark liquid-glass navbar (shared with dashboard.html) ---------- */
-        .navbar {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 40px);
-            max-width: 900px;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 10px 12px 10px 16px;
-            border-radius: 999px;
-            background: linear-gradient(180deg, rgba(40, 40, 44, 0.78), rgba(20, 20, 24, 0.66));
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            box-shadow:
-                0 12px 40px rgba(0, 0, 0, 0.32),
-                inset 0 1px 0 rgba(255, 255, 255, 0.16),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-        }
+    <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540 L1600,900 L0,900 Z"
+        fill="url(#curveFade2)" />
+    <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540"
+        fill="none" stroke="#3fbfb0" stroke-width="2" opacity="0.14" />
 
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.95);
-            font-weight: 650;
-            font-size: 13.5px;
-            min-width: 0;
-        }
+    <circle cx="250" cy="460" r="4" fill="#2f5fda" opacity="0.3" />
+    <circle cx="650" cy="420" r="4" fill="#2f5fda" opacity="0.3" />
+    <circle cx="880" cy="300" r="4" fill="#2f5fda" opacity="0.3" />
+    <circle cx="1300" cy="520" r="4" fill="#2f5fda" opacity="0.3" />
+</svg>
+{% endblock %}
 
-        .navbar-brand .brand-mark {
-            width: 26px;
-            height: 26px;
-            border-radius: 7px;
-            font-size: 12.5px;
-        }
+{% block nav_links %}
+{% if model_loaded %}
+<span class="navbar-status healthy"><span class="status-dot"></span>Model loaded</span>
+{% else %}
+<span class="navbar-status unhealthy"><span class="status-dot"></span>Model not loaded</span>
+{% endif %}
+<a href="/docs"><span>API </span>Docs</a>
+<a href="/dashboard" class="primary">Dashboard</a>
+{% endblock %}
 
-        .navbar-brand-text {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+{% block content %}
+<div class="container">
+    <div class="kicker">XGBoost &middot; Real-Time Inference</div>
+    <h1>Predicting energy demand before it happens</h1>
+    <p class="subtitle">
+        A production forecasting pipeline trained on EIA-930 demand, generation and weather data across
+        10 U.S. balancing authorities, served through a live inference API.
+    </p>
 
-        .navbar-links {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-
-        .navbar-links a {
-            padding: 8px 16px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.82);
-            text-decoration: none;
-            white-space: nowrap;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .navbar-links a:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-        }
-
-        .navbar-links a.primary {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 4px 14px rgba(47, 95, 218, 0.55);
-        }
-
-        .navbar-links a.primary:hover {
-            background: var(--accent-dark);
-        }
-
-        .navbar-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 13px;
-            border-radius: 999px;
-            font-weight: 600;
-            font-size: 12px;
-            background: rgba(255, 255, 255, 0.08);
-            white-space: nowrap;
-        }
-
-        .navbar-status.healthy {
-            color: #5eeba0;
-        }
-
-        .navbar-status.unhealthy {
-            color: #ff8a80;
-        }
-
-        .navbar-status .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        @media (max-width: 640px) {
-            .navbar-brand-text {
-                display: none;
-            }
-        }
-
-        .container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 44px;
-            max-width: 780px;
-            width: 100%;
-            box-shadow: var(--shadow);
-        }
-
-        .brand-mark {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            background: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .kicker {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--accent);
-            background: var(--accent-soft);
-            padding: 5px 11px;
-            border-radius: 999px;
-            margin-bottom: 18px;
-        }
-
-        h1 {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-            margin-bottom: 14px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            margin-bottom: 34px;
-            font-size: 14.5px;
-            line-height: 1.6;
-            max-width: 580px;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-            margin-bottom: 34px;
-        }
-
-        .feature-card {
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .feature-card .feature-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-
-        .feature-card h3 {
-            font-size: 14.5px;
-            font-weight: 650;
-            margin-bottom: 6px;
-        }
-
-        .feature-card p {
-            color: var(--text-muted);
-            font-size: 12.5px;
-            line-height: 1.5;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 11px 22px;
-            border-radius: 8px;
-            font-size: 13.5px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: background 0.15s, border-color 0.15s, color 0.15s;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: 1px solid var(--accent);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            border-color: var(--accent-dark);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .footer {
-            margin-top: 34px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 12px;
-        }
-    </style>
-</head>
-<body>
-    <svg class="bg-chart" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
-                <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#2f5fda" stroke-width="1" opacity="0.05" />
-            </pattern>
-            <linearGradient id="curveFade1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#2f5fda" stop-opacity="0.14" />
-                <stop offset="100%" stop-color="#2f5fda" stop-opacity="0" />
-            </linearGradient>
-            <linearGradient id="curveFade2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3fbfb0" stop-opacity="0.10" />
-                <stop offset="100%" stop-color="#3fbfb0" stop-opacity="0" />
-            </linearGradient>
-        </defs>
-
-        <rect width="1600" height="900" fill="url(#grid)" />
-
-        <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380 L1600,900 L0,900 Z"
-            fill="url(#curveFade1)" />
-        <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380"
-            fill="none" stroke="#2f5fda" stroke-width="2" opacity="0.18" />
-
-        <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540 L1600,900 L0,900 Z"
-            fill="url(#curveFade2)" />
-        <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540"
-            fill="none" stroke="#3fbfb0" stroke-width="2" opacity="0.14" />
-
-        <circle cx="250" cy="460" r="4" fill="#2f5fda" opacity="0.3" />
-        <circle cx="650" cy="420" r="4" fill="#2f5fda" opacity="0.3" />
-        <circle cx="880" cy="300" r="4" fill="#2f5fda" opacity="0.3" />
-        <circle cx="1300" cy="520" r="4" fill="#2f5fda" opacity="0.3" />
-    </svg>
-
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-            <span class="brand-mark">E</span>
-            <span class="navbar-brand-text">Realtime Energy Demand Forecasting</span>
-        </a>
-        <div class="navbar-links">
-            <a href="/docs"><span>API </span>Docs</a>
-            <a href="/dashboard" class="primary">Dashboard</a>
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-label">Forecast</div>
+            <h3>24-hour demand profile</h3>
+            <p>Full-day predicted load curve for any region and scenario, with peak, valley and ramp called out.</p>
         </div>
-    </nav>
-
-    <div class="container">
-        <div class="kicker">XGBoost &middot; Real-Time Inference</div>
-        <h1>Predicting energy demand before it happens</h1>
-        <p class="subtitle">
-            A production forecasting pipeline trained on EIA-930 demand, generation and weather data across
-            10 U.S. balancing authorities, served through a live inference API.
-        </p>
-
-        <div class="features">
-            <div class="feature-card">
-                <div class="feature-label">Model</div>
-                <h3>XGBoost regression</h3>
-                <p>Gradient-boosted trees tuned for short-term load forecasting, test R² of 0.99.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-label">Inference</div>
-                <h3>Real-time predictions</h3>
-                <p>Instant demand estimates with a 95% confidence interval and interactive what-if charts.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-label">Operations</div>
-                <h3>On-demand retraining</h3>
-                <p>Kick off a background retraining job against the latest processed data via the API.</p>
-            </div>
+        <div class="feature-card">
+            <div class="feature-label">Operations</div>
+            <h3>Grid balance at a glance</h3>
+            <p>Generation vs predicted demand, classified as surplus, tight or deficit with the exact margin.</p>
         </div>
-
-        <div class="cta-buttons">
-            <a href="/dashboard" class="btn btn-primary">Open dashboard</a>
-            <a href="/docs" class="btn btn-secondary">API documentation</a>
-        </div>
-
-        <div class="footer">
-            Built with FastAPI &amp; XGBoost — v1.0.0<br>
-            Emad Malik
+        <div class="feature-card">
+            <div class="feature-label">Inference</div>
+            <h3>Real-time what-if analysis</h3>
+            <p>Instant predictions with 95% confidence intervals, swept across day, month and region.</p>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="cta-buttons">
+        <a href="/dashboard" class="btn btn-primary">Open dashboard</a>
+        <a href="/docs" class="btn btn-outline">API documentation</a>
+    </div>
+
+    <div class="footer">
+        Built with FastAPI &amp; XGBoost — v1.0.0<br>
+        Emad Malik
+    </div>
+</div>
+{% endblock %}
