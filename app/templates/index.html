@@ -37,51 +37,25 @@
             overflow-x: hidden;
         }
 
-        /* Soft blurred color fields behind the glass navbar so the blur has
-           something to refract - purely decorative, fixed to the viewport. */
-        .bg-blob {
+        /* Faint data-curve backdrop - a stylised demand chart behind the UI,
+           low opacity so it reads as texture rather than content. */
+        .bg-chart {
             position: fixed;
-            border-radius: 50%;
-            filter: blur(70px);
-            opacity: 0.35;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
             pointer-events: none;
-            animation: drift 22s ease-in-out infinite alternate;
+            animation: chartDrift 34s ease-in-out infinite alternate;
         }
 
-        .bg-blob.one {
-            width: 420px;
-            height: 420px;
-            top: -140px;
-            left: -100px;
-            background: radial-gradient(circle, #6ea1ff, transparent 70%);
-        }
-
-        .bg-blob.two {
-            width: 380px;
-            height: 380px;
-            top: -60px;
-            right: -120px;
-            background: radial-gradient(circle, #9b8bff, transparent 70%);
-            animation-delay: -6s;
-        }
-
-        .bg-blob.three {
-            width: 320px;
-            height: 320px;
-            bottom: -160px;
-            left: 40%;
-            background: radial-gradient(circle, #7fd8d0, transparent 70%);
-            animation-delay: -12s;
-        }
-
-        @keyframes drift {
+        @keyframes chartDrift {
             from {
-                transform: translate(0, 0) scale(1);
+                transform: scale(1) translate(0, 0);
             }
 
             to {
-                transform: translate(30px, 20px) scale(1.08);
+                transform: scale(1.035) translate(-12px, -8px);
             }
         }
 
@@ -117,7 +91,8 @@
             text-decoration: none;
             color: var(--text);
             font-weight: 650;
-            font-size: 14px;
+            font-size: 13.5px;
+            min-width: 0;
         }
 
         .navbar-brand .brand-mark {
@@ -127,10 +102,17 @@
             font-size: 12.5px;
         }
 
+        .navbar-brand-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .navbar-links {
             display: flex;
             align-items: center;
             gap: 2px;
+            flex-shrink: 0;
         }
 
         .navbar-links a {
@@ -140,6 +122,7 @@
             font-weight: 600;
             color: var(--text);
             text-decoration: none;
+            white-space: nowrap;
             transition: background 0.15s, color 0.15s;
         }
 
@@ -157,8 +140,8 @@
             background: var(--accent-dark);
         }
 
-        @media (max-width: 560px) {
-            .navbar-links a span {
+        @media (max-width: 640px) {
+            .navbar-brand-text {
                 display: none;
             }
         }
@@ -171,13 +154,6 @@
             max-width: 780px;
             width: 100%;
             box-shadow: var(--shadow);
-        }
-
-        .brand-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 22px;
         }
 
         .brand-mark {
@@ -194,16 +170,33 @@
             flex-shrink: 0;
         }
 
+        .kicker {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 5px 11px;
+            border-radius: 999px;
+            margin-bottom: 18px;
+        }
+
         h1 {
-            font-size: 24px;
-            font-weight: 650;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 14px;
         }
 
         .subtitle {
             color: var(--text-muted);
             margin-bottom: 34px;
             font-size: 14.5px;
-            max-width: 560px;
+            line-height: 1.6;
+            max-width: 580px;
         }
 
         .features {
@@ -289,30 +282,56 @@
     </style>
 </head>
 <body>
-    <div class="bg-blob one"></div>
-    <div class="bg-blob two"></div>
-    <div class="bg-blob three"></div>
+    <svg class="bg-chart" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+                <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#2f5fda" stroke-width="1" opacity="0.05" />
+            </pattern>
+            <linearGradient id="curveFade1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2f5fda" stop-opacity="0.14" />
+                <stop offset="100%" stop-color="#2f5fda" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="curveFade2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3fbfb0" stop-opacity="0.10" />
+                <stop offset="100%" stop-color="#3fbfb0" stop-opacity="0" />
+            </linearGradient>
+        </defs>
+
+        <rect width="1600" height="900" fill="url(#grid)" />
+
+        <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380 L1600,900 L0,900 Z"
+            fill="url(#curveFade1)" />
+        <path d="M0,620 C100,600 150,480 250,460 C350,440 380,520 450,560 C520,600 560,540 650,420 C740,300 800,280 880,300 C960,320 1000,420 1080,480 C1160,540 1220,560 1300,520 C1380,480 1450,400 1600,380"
+            fill="none" stroke="#2f5fda" stroke-width="2" opacity="0.18" />
+
+        <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540 L1600,900 L0,900 Z"
+            fill="url(#curveFade2)" />
+        <path d="M0,760 C120,740 180,680 280,700 C380,720 420,660 500,620 C580,580 620,640 700,660 C780,680 840,600 920,560 C1000,520 1060,580 1140,600 C1220,620 1300,560 1380,540 C1460,520 1520,560 1600,540"
+            fill="none" stroke="#3fbfb0" stroke-width="2" opacity="0.14" />
+
+        <circle cx="250" cy="460" r="4" fill="#2f5fda" opacity="0.3" />
+        <circle cx="650" cy="420" r="4" fill="#2f5fda" opacity="0.3" />
+        <circle cx="880" cy="300" r="4" fill="#2f5fda" opacity="0.3" />
+        <circle cx="1300" cy="520" r="4" fill="#2f5fda" opacity="0.3" />
+    </svg>
 
     <nav class="navbar">
         <a href="/" class="navbar-brand">
             <span class="brand-mark">E</span>
-            Energy Demand ML
+            <span class="navbar-brand-text">Realtime Energy Demand Forecasting</span>
         </a>
         <div class="navbar-links">
             <a href="/docs"><span>API </span>Docs</a>
-            <a href="/health"><span>Health </span>Check</a>
             <a href="/dashboard" class="primary">Dashboard</a>
         </div>
     </nav>
 
     <div class="container">
-        <div class="brand-row">
-            <span class="brand-mark">E</span>
-            <h1>Energy Demand ML</h1>
-        </div>
+        <div class="kicker">XGBoost &middot; Real-Time Inference</div>
+        <h1>Predicting energy demand before it happens</h1>
         <p class="subtitle">
-            A production XGBoost model for short-term energy demand forecasting, trained on EIA-930 demand,
-            generation and weather data across 10 U.S. balancing authorities.
+            A production forecasting pipeline trained on EIA-930 demand, generation and weather data across
+            10 U.S. balancing authorities, served through a live inference API.
         </p>
 
         <div class="features">
