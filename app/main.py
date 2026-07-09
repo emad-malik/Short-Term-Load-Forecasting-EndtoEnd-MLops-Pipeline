@@ -76,6 +76,53 @@ class TrainingStatus(BaseModel):
     status: str
     message: str
 
+class WhatIfRequest(BaseModel):
+    """Base input plus which dimension to sweep, for what-if charts"""
+    demand_forecast_mw: float
+    net_generation_mw: float
+    total_interchange_mw: float
+    hour_number: int = Field(..., ge=1, le=25)
+    hour: int = Field(..., ge=0, le=23)
+    day_of_week: int = Field(..., ge=0, le=6)
+    month: int = Field(..., ge=1, le=12)
+    balancing_authority: str
+    sub_region: str
+    season: str
+    sweep_by: str = Field(..., description="hour | day_of_week | month | balancing_authority")
+
+# Human-readable labels for model feature names (used by /api/feature-importance)
+FEATURE_LABELS = {
+    'Demand Forecast (MW)': 'Demand Forecast',
+    'Net Generation (MW)': 'Net Generation',
+    'Total Interchange (MW)': 'Total Interchange',
+    'Hour Number': 'Hour Number',
+    'hour': 'Hour of Day',
+    'day_of_week': 'Day of Week',
+    'month': 'Month',
+    'Balancing Authority_encoded': 'Balancing Authority',
+    'Sub-Region_encoded': 'Sub-Region',
+    'season_encoded': 'Season',
+}
+
+DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+
+def _to_model_input(data: Dict) -> Dict:
+    """Map API field names to the column names EnergyDemandPredictor expects"""
+    return {
+        'Demand Forecast (MW)': data['demand_forecast_mw'],
+        'Net Generation (MW)': data['net_generation_mw'],
+        'Total Interchange (MW)': data['total_interchange_mw'],
+        'Hour Number': data['hour_number'],
+        'hour': data['hour'],
+        'day_of_week': data['day_of_week'],
+        'month': data['month'],
+        'Balancing Authority': data['balancing_authority'],
+        'Sub-Region': data['sub_region'],
+        'season': data['season'],
+    }
+
 # Startup event to load model
 @app.on_event("startup")
 async def startup_event():
@@ -166,26 +213,114 @@ async def predict_xgboost(request: PredictionRequest):
     
     try:
         # Prepare input data
-        input_data = {
-            'Demand Forecast (MW)': request.demand_forecast_mw,
-            'Net Generation (MW)': request.net_generation_mw,
-            'Total Interchange (MW)': request.total_interchange_mw,
-            'Hour Number': request.hour_number,
-            'hour': request.hour,
-            'day_of_week': request.day_of_week,
-            'month': request.month,
-            'Balancing Authority': request.balancing_authority,
-            'Sub-Region': request.sub_region,
-            'season': request.season
-        }
-        
+        input_data = _to_model_input(request.model_dump())
+
         # Make prediction
         result = predictor.predict_with_confidence(input_data)
-        
+
         return PredictionResponse(**result)
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+
+# Endpoint 2b: Feature importance (powers the model-insight chart on the dashboard)
+@app.get("/api/feature-importance")
+async def feature_importance():
+    """Return the trained model's feature importances for charting"""
+    if predictor is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Please train the model first using POST /train"
+        )
+
+    try:
+        importances = predictor.model.feature_importances_
+        names = predictor.feature_names
+
+        features = [
+            {"feature": FEATURE_LABELS.get(name, name), "importance": float(score)}
+            for name, score in zip(names, importances)
+        ]
+        features.sort(key=lambda f: f["importance"], reverse=True)
+
+        return {"features": features}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Feature importance error: {str(e)}")
+
+# Endpoint 2c: What-if sweep (powers the interactive line/bar chart on the dashboard)
+@app.post("/api/whatif")
+async def whatif(request: WhatIfRequest):
+    """
+    Hold all inputs fixed except one dimension, sweep it across its valid
+    range, and return a prediction for each step - used to draw an
+    interactive what-if chart client-side.
+    """
+    if predictor is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Please train the model first using POST /train"
+        )
+
+    base = request.model_dump()
+    sweep_by = base.pop("sweep_by")
+
+    if sweep_by == "hour":
+        sweep_values = [(h, str(h)) for h in range(24)]
+        field = "hour"
+    elif sweep_by == "day_of_week":
+        sweep_values = [(d, DAY_LABELS[d]) for d in range(7)]
+        field = "day_of_week"
+    elif sweep_by == "month":
+        sweep_values = [(m, MONTH_LABELS[m - 1]) for m in range(1, 13)]
+        field = "month"
+    elif sweep_by == "balancing_authority":
+        try:
+            classes = list(predictor.label_encoders["Balancing Authority"].classes_)
+        except Exception:
+            classes = [base["balancing_authority"]]
+        sweep_values = [(c, c) for c in classes]
+        field = "balancing_authority"
+    else:
+        raise HTTPException(status_code=400, detail="sweep_by must be one of: hour, day_of_week, month, balancing_authority")
+
+    try:
+        points = []
+        for value, label in sweep_values:
+            row = dict(base)
+            row[field] = value
+            if sweep_by == "hour":
+                row["hour_number"] = value + 1  # keep hour_number consistent with hour
+            input_data = _to_model_input(row)
+            result = predictor.predict_with_confidence(input_data)
+            points.append({
+                "label": label,
+                "predicted_demand_mw": result["predicted_demand_mw"],
+                "lower_bound_mw": result["lower_bound_mw"],
+                "upper_bound_mw": result["upper_bound_mw"],
+            })
+
+        return {"sweep_by": sweep_by, "points": points}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"What-if error: {str(e)}")
+
+# Endpoint 2d: Metadata for building dropdowns (known balancing authorities / seasons)
+@app.get("/api/metadata")
+async def metadata():
+    """Known categorical values, used to populate dashboard dropdowns"""
+    if predictor is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model not loaded. Please train the model first using POST /train"
+        )
+
+    try:
+        return {
+            "balancing_authorities": sorted(list(predictor.label_encoders["Balancing Authority"].classes_)),
+            "sub_regions": sorted(list(predictor.label_encoders["Sub-Region"].classes_)),
+            "seasons": sorted(list(predictor.label_encoders["season"].classes_)),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Metadata error: {str(e)}")
 
 # Endpoint 3: Dashboard
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -212,11 +347,27 @@ async def dashboard(request: Request):
         "sub_region": "PGAE",
         "season": "summer"
     }
-    
+
+    # Known categorical values, rendered server-side into <select>/<datalist>
+    # options. Falls back to a fixed list if the model isn't loaded yet, so
+    # the form always renders correctly.
+    if predictor is not None:
+        try:
+            balancing_authorities = sorted(list(predictor.label_encoders["Balancing Authority"].classes_))
+            sub_regions = sorted(list(predictor.label_encoders["Sub-Region"].classes_))
+            seasons = sorted(list(predictor.label_encoders["season"].classes_))
+        except Exception:
+            balancing_authorities, sub_regions, seasons = [], [], ["winter", "spring", "summer", "fall"]
+    else:
+        balancing_authorities, sub_regions, seasons = [], [], ["winter", "spring", "summer", "fall"]
+
     return templates.TemplateResponse(request, "dashboard.html", {
         "title": "Energy Demand Prediction Dashboard",
         "model_status": model_status,
-        "example_data": example_data
+        "example_data": example_data,
+        "balancing_authorities": balancing_authorities,
+        "sub_regions": sub_regions,
+        "seasons": seasons
     })
 
 # API Info endpoint
@@ -232,6 +383,9 @@ async def api_info():
             "/health": "Health check and model status",
             "/train": "POST - Trigger model training",
             "/predict/xgboost": "POST - Make prediction",
+            "/api/feature-importance": "GET - Model feature importances",
+            "/api/whatif": "POST - Sweep one input dimension for a what-if chart",
+            "/api/metadata": "GET - Known categorical values for dashboard dropdowns",
             "/dashboard": "Interactive dashboard",
             "/docs": "API documentation (Swagger UI)",
             "/redoc": "API documentation (ReDoc)"
