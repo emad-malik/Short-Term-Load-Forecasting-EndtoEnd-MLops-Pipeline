@@ -5,7 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+    <script>
+        // Chart.js loader with fallbacks: prefer a locally-vendored copy (works
+        // offline / behind firewalls that block CDNs), then try two independent
+        // CDNs. Anything waiting on Chart.js should call whenChartReady(fn).
+        window.__chartReadyCallbacks = [];
+        window.__chartLoaded = false;
+        function __chartReady() {
+            if (window.__chartLoaded) return;
+            window.__chartLoaded = true;
+            window.__chartReadyCallbacks.forEach(function (cb) { cb(); });
+            window.__chartReadyCallbacks = [];
+        }
+        function whenChartReady(cb) {
+            if (window.__chartLoaded || window.Chart) { window.__chartLoaded = true; cb(); }
+            else window.__chartReadyCallbacks.push(cb);
+        }
+        var __chartSources = [
+            '/static/vendor/chart.umd.min.js',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js'
+        ];
+        (function loadNext(i) {
+            if (i >= __chartSources.length) {
+                console.error('Chart.js failed to load from all sources (local + CDNs).');
+                return;
+            }
+            var s = document.createElement('script');
+            s.src = __chartSources[i];
+            s.onload = __chartReady;
+            s.onerror = function () { loadNext(i + 1); };
+            document.head.appendChild(s);
+        })(0);
+    </script>
     <style>
         :root {
             --bg: #f4f5f7;
@@ -833,8 +865,9 @@
         });
 
         // ---------- Metrics chart (train vs test) ----------
-        const metricsEl = document.getElementById('metricsData');
-        if (metricsEl && window.Chart) {
+        function initMetricsChart() {
+            const metricsEl = document.getElementById('metricsData');
+            if (!metricsEl) return;
             const mae = parseFloat(metricsEl.dataset.mae);
             const rmse = parseFloat(metricsEl.dataset.rmse);
             const trainMae = parseFloat(metricsEl.dataset.trainMae);
@@ -885,7 +918,7 @@
                 const result = await res.json();
                 renderWhatIf(result);
             } catch (err) {
-                errorRow.textContent = err.message;
+                errorRow.textContent = window.Chart ? err.message : 'Charting library failed to load. Check your connection or ad blocker, then reload the page.';
                 errorRow.classList.add('show');
             }
         }
@@ -995,16 +1028,17 @@
                     }
                 });
             } catch (err) {
-                errorRow.textContent = err.message;
+                errorRow.textContent = window.Chart ? err.message : 'Charting library failed to load. Check your connection or ad blocker, then reload the page.';
                 errorRow.classList.add('show');
             }
         }
 
         // ---------- Init ----------
-        if (window.Chart) {
+        whenChartReady(function () {
+            initMetricsChart();
             loadFeatureImportance();
             loadWhatIf('hour', getFormValues());
-        }
+        });
     </script>
 </body>
 
