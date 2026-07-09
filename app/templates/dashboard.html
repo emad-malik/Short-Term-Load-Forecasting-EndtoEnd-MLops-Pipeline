@@ -76,34 +76,43 @@
             color: inherit;
         }
 
-        .topbar {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .topbar-inner {
+        /* ---------- Dark liquid-glass navbar (shared with index.html) ---------- */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
             max-width: 1180px;
-            margin: 0 auto;
-            padding: 16px 24px;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(40, 40, 44, 0.78), rgba(20, 20, 24, 0.66));
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.32),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.25);
         }
 
-        .brand {
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 9px;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            color: var(--text);
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 650;
+            font-size: 13.5px;
+            min-width: 0;
         }
 
-        .brand-mark {
+        .navbar-brand .brand-mark {
             width: 26px;
             height: 26px;
             border-radius: 7px;
@@ -112,46 +121,87 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
+            flex-shrink: 0;
         }
 
-        .brand-sub {
-            color: var(--text-muted);
-            font-weight: 400;
+        .navbar-brand-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .status-pill {
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .navbar-links a {
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.82);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .navbar-links a:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .navbar-links a.primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 14px rgba(47, 95, 218, 0.55);
+        }
+
+        .navbar-links a.primary:hover {
+            background: var(--accent-dark);
+        }
+
+        .navbar-status {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            padding: 6px 12px;
+            gap: 6px;
+            padding: 7px 13px;
             border-radius: 999px;
             font-weight: 600;
-            font-size: 12.5px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            white-space: nowrap;
         }
 
-        .status-pill.healthy {
-            background: var(--success-soft);
-            color: var(--success);
+        .navbar-status.healthy {
+            color: #5eeba0;
         }
 
-        .status-pill.unhealthy {
-            background: var(--danger-soft);
-            color: var(--danger);
+        .navbar-status.unhealthy {
+            color: #ff8a80;
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
+        .navbar-status .status-dot {
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: currentColor;
+        }
+
+        @media (max-width: 640px) {
+            .navbar-brand-text {
+                display: none;
+            }
         }
 
         .shell {
             max-width: 1180px;
             margin: 0 auto;
-            padding: 28px 24px 60px;
+            padding: 100px 24px 60px;
         }
 
         .page-heading {
@@ -555,19 +605,21 @@
 </head>
 
 <body>
-    <div class="topbar">
-        <div class="topbar-inner">
-            <a href="/" class="brand">
-                <span class="brand-mark">E</span>
-                Energy Demand ML <span class="brand-sub">&nbsp;/ Dashboard</span>
-            </a>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span class="brand-mark">E</span>
+            <span class="navbar-brand-text">Realtime Energy Demand Forecasting</span>
+        </a>
+        <div class="navbar-links">
             {% if model_status.loaded %}
-            <span class="status-pill healthy"><span class="status-dot"></span>Model loaded</span>
+            <span class="navbar-status healthy"><span class="status-dot"></span>Model loaded</span>
             {% else %}
-            <span class="status-pill unhealthy"><span class="status-dot"></span>Model not loaded</span>
+            <span class="navbar-status unhealthy"><span class="status-dot"></span>Model not loaded</span>
             {% endif %}
+            <a href="/docs"><span>API </span>Docs</a>
+            <a href="/" class="primary">Home</a>
         </div>
-    </div>
+    </nav>
 
     <main class="shell">
         <div class="page-heading">
