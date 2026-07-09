@@ -32,7 +32,135 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 24px;
+            padding: 120px 24px 40px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Soft blurred color fields behind the glass navbar so the blur has
+           something to refract - purely decorative, fixed to the viewport. */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.35;
+            z-index: -1;
+            pointer-events: none;
+            animation: drift 22s ease-in-out infinite alternate;
+        }
+
+        .bg-blob.one {
+            width: 420px;
+            height: 420px;
+            top: -140px;
+            left: -100px;
+            background: radial-gradient(circle, #6ea1ff, transparent 70%);
+        }
+
+        .bg-blob.two {
+            width: 380px;
+            height: 380px;
+            top: -60px;
+            right: -120px;
+            background: radial-gradient(circle, #9b8bff, transparent 70%);
+            animation-delay: -6s;
+        }
+
+        .bg-blob.three {
+            width: 320px;
+            height: 320px;
+            bottom: -160px;
+            left: 40%;
+            background: radial-gradient(circle, #7fd8d0, transparent 70%);
+            animation-delay: -12s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 20px) scale(1.08);
+            }
+        }
+
+        /* ---------- Liquid glass navbar ---------- */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 900px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 12px 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
+            backdrop-filter: blur(22px) saturate(180%);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 8px 32px rgba(23, 24, 28, 0.10),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 650;
+            font-size: 14px;
+        }
+
+        .navbar-brand .brand-mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 7px;
+            font-size: 12.5px;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .navbar-links a {
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .navbar-links a:hover {
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        .navbar-links a.primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 14px rgba(47, 95, 218, 0.35);
+        }
+
+        .navbar-links a.primary:hover {
+            background: var(--accent-dark);
+        }
+
+        @media (max-width: 560px) {
+            .navbar-links a span {
+                display: none;
+            }
         }
 
         .container {
@@ -161,6 +289,22 @@
     </style>
 </head>
 <body>
+    <div class="bg-blob one"></div>
+    <div class="bg-blob two"></div>
+    <div class="bg-blob three"></div>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span class="brand-mark">E</span>
+            Energy Demand ML
+        </a>
+        <div class="navbar-links">
+            <a href="/docs"><span>API </span>Docs</a>
+            <a href="/health"><span>Health </span>Check</a>
+            <a href="/dashboard" class="primary">Dashboard</a>
+        </div>
+    </nav>
+
     <div class="container">
         <div class="brand-row">
             <span class="brand-mark">E</span>
@@ -195,7 +339,8 @@
         </div>
 
         <div class="footer">
-            Built with FastAPI &amp; XGBoost — v1.0.0
+            Built with FastAPI &amp; XGBoost — v1.0.0<br>
+            Emad Malik
         </div>
     </div>
 </body>
